@@ -39,14 +39,18 @@ spec:
         spec:
           restartPolicy: '{{ default "Never" $cron.restartPolicy }}'
           containers:
-          - name: {{ include "common.name" $root }}
+          - name: {{ $root.Release.Name }}
             image: {{ required "image.repository is required!" $root.Values.image.repository }}:{{ required "image.tag is required!" $root.Values.image.tag }}
             imagePullPolicy: {{ $root.Values.image.pullPolicy }}
 {{ include "monochart.env" $root | indent 12 }}
-            {{- if $cron.pod.command }}
-            command: {{ toYaml $cron.pod.command }}
+            {{- with $cron.pod.command }}
+            command:
+{{ toYaml . | indent 12}}
             {{- end }}
-            args: {{ toYaml $cron.pod.args }}
+            {{- with $cron.pod.args }}
+            args:
+{{ toYaml . | indent 12}}
+            {{- end }}
 {{- with $cron.pod.securityContext }}
             securityContext:
 {{ toYaml . | indent 14 }}
@@ -58,6 +62,10 @@ spec:
 {{- with $root.Values.resources }}
             resources:
 {{ toYaml . | indent 14 }}
+{{- end }}
+{{- with $cron.pod.hostAliases }}
+          hostAliases:
+{{ toYaml . | indent 12 }}
 {{- end }}
           imagePullSecrets:
 {{- if $root.Values.dockercfg.enabled }}

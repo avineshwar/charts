@@ -39,7 +39,7 @@ spec:
 {{- end }}
     spec:
       containers:
-      - name: {{ include "common.name" . }}
+      - name: {{ .Release.Name }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{ include "monochart.env" . | indent 8 }}
@@ -53,9 +53,11 @@ spec:
 {{- end }}
         ports:
 {{- range $name, $port := .Values.service.ports }}
+{{- if $port }}
         - name: {{ $name }}
           containerPort: {{ $port.internal }}
           protocol: {{ default "TCP" $port.protocol  }}
+{{- end }}
 {{- end }}
         volumeMounts:
         - mountPath: {{ .Values.persistence.mountPath | quote }}
@@ -67,6 +69,10 @@ spec:
 {{- with .Values.resources }}
         resources:
 {{ toYaml . | indent 10 }}
+{{- end }}
+{{- with .Values.daemonset.pod.hostAliases }}
+      hostAliases:
+{{ toYaml . | indent 8 }}
 {{- end }}
       imagePullSecrets:
 {{- if .Values.dockercfg.enabled }}

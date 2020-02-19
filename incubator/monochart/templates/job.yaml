@@ -33,16 +33,18 @@ spec:
     spec:
       restartPolicy: '{{ default "Never" $job.restartPolicy }}'
       containers:
-      - name: {{ include "common.name" $root }}
+      - name: {{ $root.Release.Name }}
         image: {{ required "image.repository is required!" $root.Values.image.repository }}:{{ required "image.tag is required!" $root.Values.image.tag }}
         imagePullPolicy: {{ $root.Values.image.pullPolicy }}
 {{ include "monochart.env" $root | indent 8 }}
-        {{- if $job.pod.command }}
+        {{- with $job.pod.command }}
         command:
-{{ toYaml $job.pod.command | indent 8}}
+{{ toYaml . | indent 8}}
         {{- end }}
+        {{- with $job.pod.args }}
         args:
-{{ toYaml $job.pod.args | indent 8 }}
+{{ toYaml . | indent 8 }}
+        {{- end }}
 {{- with $job.pod.securityContext }}
         securityContext:
 {{ toYaml . | indent 10 }}
@@ -54,6 +56,10 @@ spec:
 {{- with $root.Values.resources }}
         resources:
 {{ toYaml . | indent 10 }}
+{{- end }}
+{{- with $job.pod.hostAliases }}
+      hostAliases:
+{{ toYaml . | indent 8 }}
 {{- end }}
       imagePullSecrets:
 {{- if $root.Values.dockercfg.enabled }}

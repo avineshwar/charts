@@ -8,7 +8,8 @@ nameOverride: teleport-auth
 
 ## Teleport service replicas
 ## See https://gravitational.com/teleport/docs/admin-guide/#auth-server-ha
-replicaCount: 1
+replicaCount: 2
+maxUnavailable: 50%
 
 rbac:
   create: true
@@ -57,7 +58,6 @@ bootstrap:
   ## Script used to install resources when auth service is launched
   script: |-
     #!/bin/bash
-    set -e -o pipefail
     # Log script output to /var/log/
     exec >  >(tee -ia /var/log/teleport-bootstrap.log)
     exec 2> >(tee -ia /var/log/teleport-bootstrap.log >&2)

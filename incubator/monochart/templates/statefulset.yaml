@@ -42,7 +42,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-      - name: {{ include "common.name" . }}
+      - name: {{ .Release.Name }}
         image: {{ required "image.repository is required!" .Values.image.repository }}:{{ required "image.tag is required!" .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{ include "monochart.env" . | indent 8 }}
@@ -60,9 +60,11 @@ spec:
 {{- end }}
         ports:
 {{- range $name, $port := .Values.service.ports }}
+{{- if $port }}
         - name: {{ $name }}
           containerPort: {{ $port.internal }}
           protocol: {{ default "TCP" $port.protocol  }}
+{{- end }}
 {{- end }}
         volumeMounts:
         - mountPath: {{ .Values.statefulset.persistence.mountPath | quote }}
@@ -74,6 +76,10 @@ spec:
 {{- with .Values.resources }}
         resources:
 {{ toYaml . | indent 10 }}
+{{- end }}
+{{- with .Values.statefulset.pod.hostAliases }}
+      hostAliases:
+{{ toYaml . | indent 8 }}
 {{- end }}
       imagePullSecrets:
 {{- if .Values.dockercfg.enabled }}

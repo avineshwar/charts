@@ -67,6 +67,11 @@ deployment:
   #   name: value
   pod:
     # securityContext: {}
+    # hostAliases:
+    #  - ip: "10.1.2.3"
+    #    hostnames:
+    #    - "foo.remote"
+    #    - "bar.remote"
     annotations: {}
     ## https://github.com/uswitch/kiam
     ## https://github.com/jtblin/kube2iam
@@ -87,6 +92,11 @@ statefulset:
   #   name: value
   pod:
     # securityContext: {}
+    # hostAliases:
+    #  - ip: "10.1.2.3"
+    #    hostnames:
+    #    - "foo.remote"
+    #    - "bar.remote"
     annotations: {}
     ## Read more about kube2iam to provide access to s3 https://github.com/jtblin/kube2iam
     #  iam.amazonaws.com/role: role-arn
@@ -117,6 +127,11 @@ daemonset:
   #   name: value
   pod:
     # securityContext: {}
+    # hostAliases:
+    #  - ip: "10.1.2.3"
+    #    hostnames:
+    #    - "foo.remote"
+    #    - "bar.remote"
     annotations: {}
     ## https://github.com/uswitch/kiam
     ## https://github.com/jtblin/kube2iam
@@ -135,6 +150,11 @@ job:
     restartPolicy: Never
     pod:
       # securityContext: {}
+      # hostAliases:
+      #  - ip: "10.1.2.3"
+      #    hostnames:
+      #    - "foo.remote"
+      #    - "bar.remote"
       annotations: {}
       ## https://github.com/uswitch/kiam
       ## https://github.com/jtblin/kube2iam
@@ -158,6 +178,11 @@ cronjob:
     restartPolicy: Never
     pod:
       # securityContext: {}
+      # hostAliases:
+      #  - ip: "10.1.2.3"
+      #    hostnames:
+      #    - "foo.remote"
+      #    - "bar.remote"
       annotations: {}
       ## https://github.com/uswitch/kiam
       ## https://github.com/jtblin/kube2iam
@@ -293,12 +318,12 @@ probes:
 #      port: http
 
 resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 80m
-    memory: 64Mi
+#  limits:
+#    cpu: 100m
+#    memory: 128Mi
+#  requests:
+#    cpu: 80m
+#    memory: 64Mi
 
 persistence:
   enabled: false
@@ -329,6 +354,7 @@ persistence:
 ingress:
   default:
     enabled: false
+    port: default
 #    labels:
 #      dns: "route53"
 #    annotations:
@@ -341,3 +367,44 @@ ingress:
 #    - secretName: server-tls
 #      hosts:
 #      - domain.com
+
+# Istio Virtual Services for load balancer
+virtualServices:
+  default:
+    enabled: false
+#    hosts:
+#      - "domain.com"
+#    http:
+#    - name: "reviews-v2-routes"
+#      match:
+#      - uri:
+#          prefix: "/wpcatalog"
+#      - uri:
+#          prefix: "/consumercatalog"
+#      rewrite:
+#        uri: "/newcatalog"
+#      route:
+#      - destination:
+#          host: reviews.prod.svc.cluster.local
+#          subset: v2
+#    - name: "reviews-v1-route"
+#      route:
+#      - destination:
+#          host: reviews.prod.svc.cluster.local
+#          subset: v1
+
+
+crd:
+#  "networking.istio.io/v1alpha3":
+#    ServiceEntry:
+#      default:
+#        enabled: true
+#        spec:
+#          hosts:
+#            - www.googleapis.com
+#            ports:
+#              - number: 443
+#                name: https
+#                protocol: HTTPS
+#            location: MESH_EXTERNAL
+#            resolution: DNS
